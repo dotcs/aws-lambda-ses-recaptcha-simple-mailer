@@ -4,10 +4,10 @@ Provides a simple mail backend via AWS Lambda that uses AWS SES for sending mail
 
 ## Installation
 
-To get the script running you have to provide a proper API first. To do so copy `env.template.js` to `env.js` and 
-set your SES variables, your ReCaptcha private key as well as both, sender and receiver mails.
+To get the script running you have to provide a proper environment first. To do so copy `env.template.js` to `env.js` 
+and set your SES variables, your ReCaptcha private key as well as both, sender and receiver mails.
 
-Install dependencies via `npm install`.
+Then install all necessary dependencies via `npm install`.
 
 ## Usage
 
@@ -31,16 +31,14 @@ via POST method, with a properly set header `Content-Type: 'application/json'`:
 The script will then test the token against reCAPTCHA's backend by performing an HTTP request. 
 If everything worked out the response will have status code 201 with an empty response body.
 
-
 In case of an error it will give one of the following responses:
 
-| Internal status  | Description  | Response string (match)  |
+| Response status  | Description  | Respnose HTTP status code  |
 |---|---|---|
-| CAPTCHA_INVALID  | Given captcha code was invalid  | 'Bad Request'   |
-| CAPTCHA_FAILED  | Problem when quering the reCAPTCHA API | 'Bad Request'  |
-| OTHER | Problem when querying AWS SES | 'Internal Error'  |
+| CAPTCHA_INVALID  | Given captcha code was invalid  | 400   |
+| CAPTCHA_FAILED  | Problem when quering the reCAPTCHA API | 500  |
+| OTHER | Problem when querying AWS SES | 500  |
 
-You can use the response string in the column above to set the response HTTP status code via AWS.
 
 ## Tests
 

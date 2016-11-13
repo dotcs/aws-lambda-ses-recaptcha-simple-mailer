@@ -23,14 +23,14 @@ function verifyCaptcha(token, ip) {
       function(err, httpResponse, body){
         if (err) {
           console.log('CAPTCHA_FAILED', err);
-          reject({ status: 'CAPTCHA_FAILED' });
+          reject({ status: 'CAPTCHA_FAILED', statusCode: 500 });
         } else {
           var parsedBody = JSON.parse(body);
           if (parsedBody.success) {
             resolve();
           } else {
             console.log('CAPTCHA_INVALID', body);
-            reject({ status: 'CAPTCHA_INVALID' });
+            reject({ status: 'CAPTCHA_INVALID', statusCode: 400 });
           }
         }
       });
@@ -41,6 +41,10 @@ exports.handler = function(event, context) {
   console.log('Incoming event: ', event);
   console.log('Incoming context: ', context);
   var body = JSON.parse(event.body);
+  var jsonCorsResponseHeaders = {
+    'Access-Control-Allow-Origin': '*',
+    'Content-Type': 'application/json'
+  };
 
   verifyCaptcha(body['g-recaptcha-response'], context.sourceIp)
     .then(function() {
@@ -58,16 +62,22 @@ exports.handler = function(event, context) {
         if(err) {
             console.log('===EMAIL NOT SENT===');
             console.log(err);
-            context.fail('Internal Error: Mail could not be sent.');
+            context.succeed(
+              { statusCode: 500
+              , headers: jsonCorsResponseHeaders
+              , body: JSON.stringify({ error: 'Internal Error: Mail could not be sent.' }),
+              }
+            );
         }
         else {
             console.log("===EMAIL SENT===");
             console.log(data);
-                context.succeed({
-                "statusCode": 201,
-                "headers": {"Access-Control-Allow-Origin": "*"},
-                "body": "{}"
-            });
+            context.succeed(
+              { statusCode: 201
+              , headers: jsonCorsResponseHeaders
+              , body: JSON.stringify({})
+              }
+            );
         }
       });
       console.log('EMAIL CODE END');
@@ -76,6 +86,17 @@ exports.handler = function(event, context) {
     .catch(function(err) { 
       console.log('CAPTCHA ERROR', err);
       context.fail('Bad Request: ' + err.status)
+
+      context.succeed({
+        statusCode: err.statusCode || 500,
+        headers: jsonCorsResponseHeaders,
+        body: JSON.stringify(
+          { error: 'Operation unsuccessful: ' + err.status
+          , status: err.status
+          }
+        )
+      });
+      
     });
 
 };
