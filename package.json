@@ -1,0 +1,23 @@
+{
+  "name": "aws-lambda-ses-recaptcha-simple-mailer",
+  "version": "1.0.0",
+  "description": "git remote add origin git@github.com:dotcs/aws-lambda-ses-recaptcha-simple-mailer.git",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dotcs/aws-lambda-ses-recaptcha-simple-mailer"
+  },
+  "main": "index.js",
+  "scripts": {
+    "build": "./build.sh",
+    "test": "NODE_ENV=test lambda-local -l index.js -h handler -e event-samples/receive-mail.js"
+  },
+  "keywords": [],
+  "author": "Fabian Mueller (https://github.com/dotcs)",
+  "license": "MIT",
+  "devDependencies": {
+    "lambda-local": "^1.1.0"
+  },
+  "dependencies": {
+    "request": "^2.78.0"
+  }
+}
