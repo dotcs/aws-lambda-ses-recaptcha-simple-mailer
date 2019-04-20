@@ -1,0 +1,9 @@
+name: aws-lambda-ses-recaptcha-simple-mailer
+channels:
+  - defaults
+dependencies:
+  - libcxx=4.0.1=hcfea43d_1
+  - libcxxabi=4.0.1=hcfea43d_1
+  - nodejs=8.9.3=h378b8a2_0
+prefix: /Users/dotcs/anaconda3/envs/aws-lambda-ses-recaptcha-simple-mailer
+

@@ -4,15 +4,24 @@ Provides a simple mail backend via AWS Lambda that uses AWS SES for sending mail
 
 ## Installation
 
-To get the script running you have to provide a proper environment first. To do so copy `env.template.js` to `env.js` 
-and set your SES variables, your ReCaptcha private key as well as both, sender and receiver mails.
-
-Then install all necessary dependencies via `npm install`.
+Install all necessary dependencies via `npm install`.
 
 ## Usage
 
-With your `env.js` in place run `npm run build` in order to create a zip file in the `build` directory. 
-This file contains both, the script and its environment as well as all necessary modules from the `node_modules` folder.
+The following variables need to be set in the AWS Lamdba function definition:
+
+```bash
+CAPTCHA_PRIVATE_KEY="YOUR_KEY_HERE"
+RECEIVER_MAIL="some.mail@domain.com"       # can be multiple receivers, separate by comma
+RECEIVER_MAIL_BCC="some.mail@domain.com"   # can be multiple BCC receivers, separate by comma
+SENDER_MAIL="some.mail@domain.com"
+SES_ACCESS_KEY_ID="YOUR_KEY_HERE"
+SES_REGION="eu-west-1"                     # or any other region
+SES_SECRET_ACCESSKEY="YOUR_KEY_HERE"
+```
+
+Run `npm run build` in order to create a zip file in the `build` directory.
+This file contains the script and all necessary modules from the `node_modules` folder.
 
 This script has been designed to work behind a AWS Gateway's POST method. It requires the client to send three properties 
 via POST method, with a properly set header `Content-Type: 'application/json'`:
