@@ -1,31 +1,47 @@
-var aws = require('aws-sdk');
-var request = require('request');
-var envPath = process.env.NODE_ENV === 'test' ? './env.test' : './env';
-var env = require(envPath);
+const aws = require('aws-sdk');
+const request = require('request');
+
+const {
+  SES_ACCESS_KEY_ID,
+  SES_SECRET_ACCESSKEY,
+  SES_REGION,
+  SENDER_MAIL,
+  RECEIVER_MAIL,
+  RECEIVER_MAIL_BCC
+} = process.env;
+let {
+  CAPTCHA_PRIVATE_KEY,
+} = process.env;
+
+const sesConfig = {
+  accessKeyId: SES_ACCESS_KEY_ID,
+  secretAccesskey: SES_SECRET_ACCESSKEY,
+  region: SES_REGION
+};
 
 // Configure SES environment
-var ses = new aws.SES(env.SES);
+const ses = new aws.SES(sesConfig);
 
 // Endpoints
-var CAPTCHA_VERIFICATION_ENDPOINT = 'https://www.google.com/recaptcha/api/siteverify';
+const CAPTCHA_VERIFICATION_ENDPOINT = 'https://www.google.com/recaptcha/api/siteverify';
 
 // NOTE:
 // Error handling is done as described here: http://stackoverflow.com/a/31371862/434227
 
 function verifyCaptcha(token, ip) {
-  var data = 
+  const data = 
     { response: token
-    , secret: env.CAPTCHA_PRIVATE_KEY
+    , secret: CAPTCHA_PRIVATE_KEY
     , remoteip: ip
     };
-  return new Promise(function(resolve, reject) {
+  return new Promise((resolve, reject) => {
     request.post({ url: CAPTCHA_VERIFICATION_ENDPOINT, form: data}, 
       function(err, httpResponse, body){
         if (err) {
           console.log('CAPTCHA_FAILED', err);
           reject({ status: 'CAPTCHA_FAILED', statusCode: 500 });
         } else {
-          var parsedBody = JSON.parse(body);
+          const parsedBody = JSON.parse(body);
           if (parsedBody.success) {
             resolve();
           } else {
@@ -40,25 +56,25 @@ function verifyCaptcha(token, ip) {
 exports.handler = function(event, context) {
   console.log('Incoming event: ', event);
   console.log('Incoming context: ', context);
-  var body = JSON.parse(event.body);
-  var jsonCorsResponseHeaders = {
+  const body = JSON.parse(event.body);
+  const jsonCorsResponseHeaders = {
     'Access-Control-Allow-Origin': '*',
     'Content-Type': 'application/json'
   };
 
   verifyCaptcha(body['g-recaptcha-response'], context.sourceIp)
-    .then(function() {
-      var eParams = 
-        { Destination: { ToAddresses: [env.RECEIVER_MAIL] }
+    .then(() => {
+      const eParams = 
+        { Destination: { ToAddresses: RECEIVER_MAIL.split(','), BccAddresses: RECEIVER_MAIL_BCC.split(',') }
         , Message: 
           { Body: { Text: { Data: body.message } }
           , Subject: { Data: body.subject }
           }
-        , Source: env.SENDER_MAIL
+        , Source: SENDER_MAIL
         };
 
       console.log('===SENDING EMAIL===');
-      var email = ses.sendEmail(eParams, function(err, data){
+      const email = ses.sendEmail(eParams, (err, data) => {
         if(err) {
             console.log('===EMAIL NOT SENT===');
             console.log(err);
@@ -83,7 +99,7 @@ exports.handler = function(event, context) {
       console.log('EMAIL CODE END');
       console.log('EMAIL: ', email);
     })
-    .catch(function(err) { 
+    .catch((err) => { 
       console.log('CAPTCHA ERROR', err);
       context.fail('Bad Request: ' + err.status)
 

@@ -4,3 +4,5 @@ env.js
 !build
 build/*
 !build/.gitkeep
+
+*.log
