@@ -1,6 +1,6 @@
 {
   "name": "aws-lambda-ses-recaptcha-simple-mailer",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "git remote add origin git@github.com:dotcs/aws-lambda-ses-recaptcha-simple-mailer.git",
   "repository": {
     "type": "git",
