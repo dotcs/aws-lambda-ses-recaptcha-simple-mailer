@@ -5,6 +5,18 @@ Provides a simple mail backend via AWS Lambda that uses AWS SES for sending mail
 ## Installation
 
 Install all necessary dependencies via `npm install`.
+Make sure to install the correct nodejs version, which is listed in `conda-requirements.txt`.
+
+```bash
+$ conda create -p ./.env --file conda-requirements.txt
+$ conda activate ./.env
+
+$ node --version
+v10.13.0
+$ npm --version
+6.4.1
+```
+This module has been tested with the AWS "Node.js 10.x" runtime.
 
 ## Usage
 
@@ -20,11 +32,23 @@ SES_REGION="eu-west-1"                     # or any other region
 SES_SECRET_ACCESSKEY="YOUR_KEY_HERE"
 ```
 
+Configuration of environment variables in AWS:
+
+![AWS Lambda Environment Variables](./assets/aws-lambda-envs.png)
+
 Run `npm run build` in order to create a zip file in the `build` directory.
 This file contains the script and all necessary modules from the `node_modules` folder.
 
-This script has been designed to work behind a AWS Gateway's POST method. It requires the client to send three properties 
-via POST method, with a properly set header `Content-Type: 'application/json'`:
+This script has been designed to work behind a AWS Gateway's POST method. 
+
+
+![AWS Designer View](./assets/aws-designer.png)
+
+![AWS API Gateway Configuration View](./assets/aws-trigger-api-gateway.png)
+
+
+The API Gateway requires the client to send three properties via POST method,
+with a properly set header `Content-Type: 'application/json'`:
 
 ```
 {
